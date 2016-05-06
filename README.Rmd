@@ -1,0 +1,74 @@
+---
+title: "Analysis of names of French villages"
+author: "Maëlle Salmon"
+date: "`r Sys.Date()`"
+output:
+  md_document:
+    variant: markdown_github
+---
+Analysis of names of French villages
+====================================
+
+Inspired by [this work about names of villages in Germany](https://github.com/hrbrmstr/zellingenach), I wished to had a look at the names of French villages. I decided against looking at prefixes and suffixes at least for now. Instead, I have chosen to visualize two particular aspects of names of villages and towns in France (only the mainland).
+
+I got a file of all French villages names and geolocation from [Geonames](http://download.geonames.org/), which you can find in the [data folder](data/). Thanks to Bob for providing me with [the link](https://gist.github.com/hrbrmstr/0fd37cf3825fc8e3eddf042a4443d1dc). The data is distributed under [this license](http://creativecommons.org/licenses/by/3.0/).
+
+# A first look at the data
+
+```{r, warning=FALSE, message=FALSE}
+library("dplyr")
+library("tidyr")
+library("readr")
+ville <- read_tsv("data/FR.txt", col_names = FALSE)[, 1:6]
+knitr::kable(head(ville))
+
+```
+
+# Names of rivers
+
+Here I select names of towns and villages that include the names of a few rivers in France, or the word "see" ("sur-Mer"). This is by no mean an exhaustive representation of such names since I only chose a few rivers and a pattern of name.
+
+```{r}
+water <- ville %>%
+  mutate(mer = grepl("sur-Mer", X2))  %>%
+  mutate(rhone = grepl("sur-Rhône", X2))  %>%
+  mutate(somme = grepl("sur-Somme", X2))  %>%
+  mutate(loire = grepl("sur-Loire", X2)) %>%
+  mutate(seine = grepl("sur-Seine", X2)) %>%
+  mutate(rhin = grepl("sur-Rhin", X2)) %>%
+  mutate(garonne = grepl("sur-Garonne", X2)) %>%
+  mutate(meuse = grepl("sur-Meuse", X2)) %>%
+  gather("name", "yes", mer:meuse) %>%
+  filter(yes == TRUE) %>%
+  select(- yes)
+knitr::kable(head(water))
+```
+
+Here is the result on a map.
+
+```{r, message=FALSE, warning=FALSE}
+library("ggplot2")
+library("ggmap")
+library("viridis")
+map <- ggmap::get_map(location = "France", zoom = 6, maptype = "watercolor")
+
+ggmap(map) +
+  geom_point(data = water,
+             aes(x = X6, y = X5, col = name)) +
+  scale_color_viridis(discrete = TRUE, option = "plasma")+
+  theme(axis.line=element_blank(),axis.text.x=element_blank(),
+        axis.text.y=element_blank(),axis.ticks=element_blank(),
+        axis.title.x=element_blank(),
+        text = element_text(size=20),
+        axis.title.y=element_blank(),
+        panel.background=element_blank(),panel.border=element_blank(),panel.grid.major=element_blank(),
+        panel.grid.minor=element_blank(),plot.background=element_blank())+
+  ggtitle("French placenames containing the name of a river or the word see") +
+  theme(plot.title = element_text(lineheight=1, face="bold"))
+
+```
+
+# Saint et Saintes
+
+In French, towns such as "Saint-Ouen" and "Sainte-Anne" can easily be partitioned into *cities named after a saint man* (saint) and *cities named after a saint woman* (sainte). Thinking of this prompted me to have a look at the distribution of such place names.
+
