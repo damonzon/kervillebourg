@@ -9,7 +9,7 @@ output:
 Analysis of names of French villages
 ====================================
 
-Inspired by [this work about names of villages in Germany](https://github.com/hrbrmstr/zellingenach), I wished to had a look at the names of French villages. I decided against looking at prefixes and suffixes at least for now. Instead, I have chosen to visualize two particular aspects of names of villages and towns in France (only the mainland).
+Inspired by [this work about names of villages in Germany](https://github.com/hrbrmstr/zellingenach), I wanted to had a look at the names of French villages. I decided against looking at prefixes and suffixes at least for now. Instead, I have chosen to visualize two particular aspects of names of villages and towns in France (only the mainland).
 
 I got a file of all French villages names and geolocation from [Geonames](http://download.geonames.org/), which you can find in the [data folder](data/). Thanks to Bob for providing me with [the link](https://gist.github.com/hrbrmstr/0fd37cf3825fc8e3eddf042a4443d1dc). The data is distributed under [this license](http://creativecommons.org/licenses/by/3.0/).
 
@@ -46,12 +46,18 @@ knitr::kable(head(water))
 
 Here is the result on a map.
 
-```{r, message=FALSE, warning=FALSE}
+```{r, message=FALSE, warning=FALSE, cache=TRUE}
 library("ggplot2")
 library("ggmap")
 library("viridis")
 map <- ggmap::get_map(location = "France", zoom = 6, maptype = "watercolor")
+```
 
+
+```{r, message=FALSE, warning=FALSE}
+library("ggplot2")
+library("ggmap")
+library("viridis")
 ggmap(map) +
   geom_point(data = water,
              aes(x = X6, y = X5, col = name)) +
@@ -59,7 +65,7 @@ ggmap(map) +
   theme(axis.line=element_blank(),axis.text.x=element_blank(),
         axis.text.y=element_blank(),axis.ticks=element_blank(),
         axis.title.x=element_blank(),
-        text = element_text(size=20),
+        text = element_text(size=12),
         axis.title.y=element_blank(),
         panel.background=element_blank(),panel.border=element_blank(),panel.grid.major=element_blank(),
         panel.grid.minor=element_blank(),plot.background=element_blank())+
@@ -68,7 +74,40 @@ ggmap(map) +
 
 ```
 
+It is a nice lesson in geography for me.
+
 # Saint et Saintes
 
 In French, towns such as "Saint-Ouen" and "Sainte-Anne" can easily be partitioned into *cities named after a saint man* (saint) and *cities named after a saint woman* (sainte). Thinking of this prompted me to have a look at the distribution of such place names.
 
+
+```{r}
+saints <- ville %>%
+  mutate(saint = grepl("Saint-", X2))  %>%
+  mutate(sainte = grepl("Sainte-", X2))  %>%
+  gather("name", "yes", saint:sainte) %>%
+  filter(yes == TRUE) %>%
+  select(- yes)
+knitr::kable(head(saints))
+```
+
+Here is the result on a map.
+
+```{r, message=FALSE, warning=FALSE}
+ggmap(map) +
+  geom_point(data = saints,
+             aes(x = X6, y = X5)) +
+  theme(axis.line=element_blank(),axis.text.x=element_blank(),
+        axis.text.y=element_blank(),axis.ticks=element_blank(),
+        axis.title.x=element_blank(),
+        text = element_text(size=12),
+        axis.title.y=element_blank(),
+        panel.background=element_blank(),panel.border=element_blank(),panel.grid.major=element_blank(),
+        panel.grid.minor=element_blank(),plot.background=element_blank())+
+  ggtitle("Places named after a saint man or woman") +
+  theme(plot.title = element_text(lineheight=1, face="bold")) +
+  facet_grid(. ~ name)
+
+```
+
+Well, I cannot say I'm surprised!

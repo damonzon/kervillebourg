@@ -1,7 +1,7 @@
 Analysis of names of French villages
 ====================================
 
-Inspired by [this work about names of villages in Germany](https://github.com/hrbrmstr/zellingenach), I wished to had a look at the names of French villages. I decided against looking at prefixes and suffixes at least for now. Instead, I have chosen to visualize two particular aspects of names of villages and towns in France (only the mainland).
+Inspired by [this work about names of villages in Germany](https://github.com/hrbrmstr/zellingenach), I wanted to had a look at the names of French villages. I decided against looking at prefixes and suffixes at least for now. Instead, I have chosen to visualize two particular aspects of names of villages and towns in France (only the mainland).
 
 I got a file of all French villages names and geolocation from [Geonames](http://download.geonames.org/), which you can find in the [data folder](data/). Thanks to Bob for providing me with [the link](https://gist.github.com/hrbrmstr/0fd37cf3825fc8e3eddf042a4443d1dc). The data is distributed under [this license](http://creativecommons.org/licenses/by/3.0/).
 
@@ -62,7 +62,12 @@ library("ggplot2")
 library("ggmap")
 library("viridis")
 map <- ggmap::get_map(location = "France", zoom = 6, maptype = "watercolor")
+```
 
+``` r
+library("ggplot2")
+library("ggmap")
+library("viridis")
 ggmap(map) +
   geom_point(data = water,
              aes(x = X6, y = X5, col = name)) +
@@ -70,7 +75,7 @@ ggmap(map) +
   theme(axis.line=element_blank(),axis.text.x=element_blank(),
         axis.text.y=element_blank(),axis.ticks=element_blank(),
         axis.title.x=element_blank(),
-        text = element_text(size=20),
+        text = element_text(size=12),
         axis.title.y=element_blank(),
         panel.background=element_blank(),panel.border=element_blank(),panel.grid.major=element_blank(),
         panel.grid.minor=element_blank(),plot.background=element_blank())+
@@ -78,9 +83,52 @@ ggmap(map) +
   theme(plot.title = element_text(lineheight=1, face="bold"))
 ```
 
-![](README_files/figure-markdown_github/unnamed-chunk-3-1.png)<!-- -->
+![](README_files/figure-markdown_github/unnamed-chunk-4-1.png)<!-- -->
+
+It is a nice lesson in geography for me.
 
 Saint et Saintes
 ================
 
 In French, towns such as "Saint-Ouen" and "Sainte-Anne" can easily be partitioned into *cities named after a saint man* (saint) and *cities named after a saint woman* (sainte). Thinking of this prompted me to have a look at the distribution of such place names.
+
+``` r
+saints <- ville %>%
+  mutate(saint = grepl("Saint-", X2))  %>%
+  mutate(sainte = grepl("Sainte-", X2))  %>%
+  gather("name", "yes", saint:sainte) %>%
+  filter(yes == TRUE) %>%
+  select(- yes)
+knitr::kable(head(saints))
+```
+
+|       X1| X2                                        | X3                                        | X4                                                                                                                                                                                                                                                                                                                                                                                       |        X5|        X6| name  |
+|--------:|:------------------------------------------|:------------------------------------------|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------:|---------:|:------|
+|  2967232| Ygos-Saint-Saturnin                       | Ygos-Saint-Saturnin                       | Ygos                                                                                                                                                                                                                                                                                                                                                                                     |  43.97651|  -0.73780| saint |
+|  2967854| Canal de Vitry-le-François à Saint-Dizier | Canal de Vitry-le-Francois a Saint-Dizier | Canal de Vitry a Saint-Dizier,Canal de Vitry à Saint-Dizier,Canal de Vitry-le-Francois a Saint-Dizier,Canal de Vitry-le-François à Saint-Dizier                                                                                                                                                                                                                                          |  48.73333|   4.60000| saint |
+|  2967887| Vitrac-Saint-Vincent                      | Vitrac-Saint-Vincent                      | Vitrac,Vitrac-Saint-Vincent,Vitrak-Sen-Vensan,wei te la ke sheng wan sang,<U+0412><U+0438><U+0442><U+0440><U+0430><U+043A>-<U+0421><U+0435><U+043D>-<U+0412><U+0435><U+043D><U+0441><U+0430><U+043D>,<U+0412><U+0456><U+0442><U+0440><U+0430><U+043A>-<U+0421><U+0435><U+043D>-<U+0412><U+0435><U+043D><U+0441><U+0430><U+043D>,<U+7EF4><U+7279><U+62C9><U+514B><U+5723><U+4E07><U+6851> |  45.79585|   0.49356| saint |
+|  2968034| Vineuil-Saint-Firmin                      | Vineuil-Saint-Firmin                      | Les Sans-Culottes-sur-Nonette,Vinej-Sen-Firmen,Vineuil,Vineuil-Saint-Firmin,wei na yi sheng fei er man,<U+0412><U+0456><U+043D><U+0435><U+0439>-<U+0421><U+0435><U+043D>-<U+0424><U+0456><U+0440><U+043C><U+0435><U+043D>,<U+7EF4><U+7EB3><U+4F0A><U+5723><U+83F2><U+5C14><U+66FC>                                                                                                       |  49.20024|   2.49567| saint |
+|  2968114| Villotte-Saint-Seine                      | Villotte-Saint-Seine                      | Villotte,Villotte-Saint-Seine                                                                                                                                                                                                                                                                                                                                                            |  47.42893|   4.70571| saint |
+|  2968141| Villiers-Saint-Denis                      | Villiers-Saint-Denis                      | Vil'e-Sen-Deni,Villiers,Villiers-aux-Pierres,wei li ye sheng dan ni,<U+0412><U+0438><U+043B><U+044C><U+0435>-<U+0421><U+0435><U+043D>-<U+0414><U+0435><U+043D><U+0438>,<U+0412><U+0456><U+043B><U+044C><U+0454>-<U+0421><U+0435><U+043D>-<U+0414><U+0435><U+043D><U+0456>,<U+7EF4><U+5229><U+8036><U+5723><U+4F46><U+5C3C>                                                               |  49.00000|   3.26667| saint |
+
+Here is the result on a map.
+
+``` r
+ggmap(map) +
+  geom_point(data = saints,
+             aes(x = X6, y = X5)) +
+  theme(axis.line=element_blank(),axis.text.x=element_blank(),
+        axis.text.y=element_blank(),axis.ticks=element_blank(),
+        axis.title.x=element_blank(),
+        text = element_text(size=12),
+        axis.title.y=element_blank(),
+        panel.background=element_blank(),panel.border=element_blank(),panel.grid.major=element_blank(),
+        panel.grid.minor=element_blank(),plot.background=element_blank())+
+  ggtitle("Places named after a saint man or woman") +
+  theme(plot.title = element_text(lineheight=1, face="bold")) +
+  facet_grid(. ~ name)
+```
+
+![](README_files/figure-markdown_github/unnamed-chunk-6-1.png)<!-- -->
+
+Well, I cannot say I'm surprised!
